@@ -43,8 +43,8 @@ class MainActivity : AppCompatActivity() {
        }  )
     }
     private val okhttp by lazy {
-        val interсeptor =HttpLoggingInterceptor{}.apply { level = HttpLoggingInterceptor.Level.BODY }
-        OkHttpClient.Builder().addInterceptor(interсeptor).build()
+        val interceptor =HttpLoggingInterceptor{}.apply { level = HttpLoggingInterceptor.Level.BODY }
+        OkHttpClient.Builder().addInterceptor(interceptor).build()
     }
     private val retrofit by lazy {
         Retrofit.Builder()
