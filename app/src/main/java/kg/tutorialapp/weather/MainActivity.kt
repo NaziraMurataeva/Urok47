@@ -17,16 +17,38 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class MainActivity : AppCompatActivity() {
-
+     var workResult :Int =1
      lateinit var binding: ActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        fetchWeatherUsingQuerry()
+       // fetchWeatherUsingQuerry()
+        setup()
 
         }
+
+    private fun setup() {
+        binding.btnStart.setOnClickListener {
+            doSomeWork()
+        }
+
+        binding.btnShowToast.setOnClickListener{
+            Toast.makeText(this, "Hello",Toast.LENGTH_LONG).show()
+
+        }
+    }
+
+    private fun doSomeWork() {
+        Thread(Runnable {
+            for (i in 0..3) {
+                Thread.sleep(1000)
+                workResult++
+            }
+            binding.textView.text = workResult.toString()
+        }) .start()
+    }
 
     private fun fetchWeatherUsingQuerry() {
         val call = WeatherClient.weatherApi.fetchWeatherUsingQuerry()
