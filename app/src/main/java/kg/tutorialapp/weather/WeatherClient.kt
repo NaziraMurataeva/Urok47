@@ -1,10 +1,9 @@
 package kg.tutorialapp.weather
-
-import kg.tutorialapp.weather.network.PostsApi
 import kg.tutorialapp.weather.network.WeatherApi
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 
 object WeatherClient {
@@ -19,6 +18,7 @@ object WeatherClient {
         Retrofit.Builder()
             .baseUrl("https://api.openweathermap.org/data/2.5/")
             .addConverterFactory(GsonConverterFactory.create())
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .client(httpClient)
             .build()
     }
