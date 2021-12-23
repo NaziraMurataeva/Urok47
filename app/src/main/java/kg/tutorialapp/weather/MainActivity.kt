@@ -7,11 +7,13 @@ import android.util.Log
 import android.widget.Toast
 import io.reactivex.Observable
 import io.reactivex.Observer
-import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kg.tutorialapp.weather.databinding.ActivityMainBinding
+import kg.tutorialapp.weather.models.ForeCast
+import kg.tutorialapp.weather.network.WeatherClient
+import kg.tutorialapp.weather.storage.ForeCastDataBase
 
 
 class MainActivity : AppCompatActivity() {
@@ -35,6 +37,8 @@ class MainActivity : AppCompatActivity() {
         binding.btnShowToast.setOnClickListener{
             Toast.makeText(this, "Hello",Toast.LENGTH_LONG).show()
 
+            ForeCastDataBase.getInstance(applicationContext).forecastDao().insert(ForeCast(lat = 21341.000))
+
         }
     }
 
@@ -48,9 +52,9 @@ class MainActivity : AppCompatActivity() {
                     binding.textView2.text = it.current?.temp?.toString()
                 }, {
                     Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
-                }
-            )
-        }
+                    })
+    }
+
 
     private fun doSomeWork() {
 
@@ -96,8 +100,7 @@ class MainActivity : AppCompatActivity() {
     companion object{
     const val TAG = "Rx"
 
-    }
-
+     }
 
 }
 
