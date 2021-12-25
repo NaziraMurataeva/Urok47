@@ -5,4 +5,15 @@
     <string name="checkbox">CheckBox</string>
     <string name="start_work_on_main_thread">Start work on main Thread</string>
     <string name="show_toast">Show Toast</string>
+    <string name="insert">insert</string>
+    <string name="update">update</string>
+    <string name="delete">delete</string>
+    <string name="query">query</string>
+    <string name="QGA">Query get all</string>
+    <string name="id">ID</string>
+    <string name="lat">lat</string>
+    <string name="lon">long</string>
+    <string name="empty">EMPTY</string>
+    <string name="description">description</string>
+
 </resources>

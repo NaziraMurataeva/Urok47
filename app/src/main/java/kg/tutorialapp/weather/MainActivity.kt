@@ -1,24 +1,24 @@
 package kg.tutorialapp.weather
-
 import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
-import io.reactivex.Observable
-import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kg.tutorialapp.weather.databinding.ActivityMainBinding
+import kg.tutorialapp.weather.models.CurrentForeCast
 import kg.tutorialapp.weather.models.ForeCast
+import kg.tutorialapp.weather.models.Weather
 import kg.tutorialapp.weather.network.WeatherClient
 import kg.tutorialapp.weather.storage.ForeCastDataBase
 
 
 class MainActivity : AppCompatActivity() {
-     var workResult :Int =1
-     lateinit var binding: ActivityMainBinding
+    lateinit var binding: ActivityMainBinding
+    private val db by lazy{
+         ForeCastDataBase.getInstance(applicationContext)
+     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -28,79 +28,76 @@ class MainActivity : AppCompatActivity() {
         }
 
 
+    @SuppressLint("CheckResult")
     private fun setup() {
-        binding.btnStart.setOnClickListener {
- //           doSomeWork()
-            makeRxCall()
-        }
 
-        binding.btnShowToast.setOnClickListener{
-            Toast.makeText(this, "Hello",Toast.LENGTH_LONG).show()
-
-            ForeCastDataBase.getInstance(applicationContext).forecastDao().insert(ForeCast(lat = 21341.000))
+        binding.btnIns.setOnClickListener{
+            db.forecastDao()
+                .insert(getForecastFromInput())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { }
 
         }
+        binding.btnUpd.setOnClickListener {
+            db.forecastDao()
+                .update(getForecastFromInput())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { }
+        }
+        binding.btnDel.setOnClickListener {
+                db.forecastDao()
+                    .delete(getForecastFromInput())
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe { }
+
+            }
+        binding.btnQga.setOnClickListener {
+            db.forecastDao()
+                .getAll()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    {
+                     var text = ""
+                     it.forEach {
+                         text += it.toString()
+                     }
+
+                     binding.textView.text = text
+                    },
+                    {
+                    }
+                )
+
+        }
+
     }
 
-    @SuppressLint("CheckResult")
+    private fun getForecastFromInput() : ForeCast {
+        val id = binding.etId.text?.toString().takeIf { !it.isNullOrEmpty() }?.toLong()
+        val lon = binding.etLon.text?.toString().takeIf { !it.isNullOrEmpty() }?.toDouble()
+        val lat = binding.etLat.text?.toString().takeIf { !it.isNullOrEmpty() }?.toDouble()
+        val description = binding.etDes.text?.toString()
+        val current = CurrentForeCast(weather = listOf(Weather(description = description)))
+
+        return ForeCast (id =id, lat = lat, lon = lon, current = current)
+    }
+
+
+
+  @SuppressLint("CheckResult")
     private fun makeRxCall() {
         WeatherClient.weatherApi.fetchWeather()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                    binding.textView.text = it.current?.weather?.get(0)?.description
-                    binding.textView2.text = it.current?.temp?.toString()
-                }, {
-                    Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
-                    })
+
+            },{
+                Toast.makeText(this, it.message, Toast.LENGTH_SHORT).show()
+            })
     }
-
-
-    private fun doSomeWork() {
-
-        val observable = Observable.create<String>{ emitter ->
-            Log.d(TAG,"${Thread.currentThread().name} starting emiting")
-            Thread.sleep(3000)
-            emitter.onNext( "Hello")
-            Thread.sleep(1000)
-            emitter.onNext("Bishkek")
-            emitter.onComplete()
-
-        }
-         val observer = object: Observer<String>{
-             override fun onSubscribe(d: Disposable) {
-
-             }
-
-             override fun onNext(t: String) {
-                 Log.d(TAG,"${Thread.currentThread().name} onNext() $t")
-             }
-
-             override fun onError(e: Throwable) {
-
-             }
-
-             override fun onComplete() {
-
-             }
-
-
-            }
-        observable
-            .subscribeOn(Schedulers.computation())
-            .map {
-                Log.d(TAG,"${Thread.currentThread().name} starting maping")
-                it.toUpperCase()
-            }
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(observer)
-
-        }
-
-    companion object{
-    const val TAG = "Rx"
-
-     }
-
 }
 
